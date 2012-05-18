@@ -12,11 +12,12 @@ class AreFilling : public ConcreteDerived
 public:
     AreFilling() {}
 
-    void setAxisNames(const std::string &xAxisName, const std::string &yAxisName);
     void parseStrLine(const std::string &line);
 
 private:
     std::deque<std::string> split(const std::string &str) const;
+
+    void setAxisNames(const std::string &xAxisName, const std::string &yAxisName);
     void createCurves(const std::deque<std::string> &names);
     void addValuesSlice(const std::deque<float> &values);
     void addValuesSlice(const std::string &line);
@@ -26,17 +27,15 @@ private:
 };
 
 template <class ConcreteDerived>
-void AreFilling<ConcreteDerived>::setAxisNames(const std::string &xAxisName, const std::string &yAxisName) {
-    this->_axisX.setName(xAxisName);
-    this->_axisY.setName(yAxisName);
-}
-
-template <class ConcreteDerived>
 void AreFilling<ConcreteDerived>::parseStrLine(const std::string &line) {
     if (line.length() == 0) return;
 
     static int callingCounter = 0;
     if (callingCounter == 0) {
+        std::deque<std::string> axisNames = split(line);
+        auto name = axisNames.cbegin();
+        setAxisNames(*name, *(++name));
+    } else if (callingCounter == 1) {
         std::deque<std::string> names = split(line);
         auto createCurvesLambda = [this, &names]() {
             names.pop_front();
@@ -73,6 +72,12 @@ std::deque<std::string> AreFilling<ConcreteDerived>::split(const std::string &st
         values.push_back(item);
     }
     return values;
+}
+
+template <class ConcreteDerived>
+void AreFilling<ConcreteDerived>::setAxisNames(const std::string &xAxisName, const std::string &yAxisName) {
+    this->_axisX.setName(xAxisName);
+    this->_axisY.setName(yAxisName);
 }
 
 template <class ConcreteDerived>
