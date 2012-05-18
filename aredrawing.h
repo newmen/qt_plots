@@ -5,8 +5,11 @@
 #include <QPainter>
 #include <QPoint>
 #include <QRect>
+#include "axis.h"
+#include "curve.h"
 
 #define MARGIN_PERCENT 0.03
+#define MIN_GRID_CELL_SIZE 89
 
 template <class ConcreteDerived>
 class AreDrawing : public ConcreteDerived
@@ -14,12 +17,16 @@ class AreDrawing : public ConcreteDerived
 public:
     AreDrawing() {}
 
+    void drawGrid(const QRect &contextGeometry, QPainter *painter) const;
     void drawAxis(const QRect &contextGeometry, QPainter *painter) const;
     void drawCurves(const QRect &contextGeometry, QPainter *painter) const;
 
 private:
+    float translateValue(const Axis &axis, int width, float value) const;
     float translateXValue(const QRect &contextGeometry, float value) const;
     float translateYValue(const QRect &contextGeometry, float value) const;
+
+    void findGridMinMaxStep(const Axis &axis, int width, float *min, float *max, float *step) const;
 
     void drawXAxis(const QRect &contextGeometry, QPainter *painter) const;
     void drawYAxis(const QRect &contextGeometry, QPainter *painter) const;
@@ -27,6 +34,35 @@ private:
     QPointF *makeCurvePoints(const QRect &contextGeometry, const Curve &curve) const;
     QColor *makeColors(size_t nums) const;
 };
+
+template <class ConcreteDerived>
+void AreDrawing<ConcreteDerived>::drawGrid(const QRect &contextGeometry, QPainter *painter) const {
+    QPen pen(Qt::black);
+    pen.setWidth(1);
+    pen.setStyle(Qt::DotLine);
+
+    float min, max, step;
+    painter->save();
+    painter->setPen(pen);
+
+    findGridMinMaxStep(this->_axisX, contextGeometry.width(), &min, &max, &step);
+    for (float i = min; i <= max; i += step) {
+        painter->save();
+        painter->translate(translateXValue(contextGeometry, i), 0);
+        painter->drawLine(0, 0, 0, contextGeometry.height());
+        painter->restore();
+    }
+
+    findGridMinMaxStep(this->_axisY, contextGeometry.height(), &min, &max, &step);
+    for (float i = min; i <= max; i += step) {
+        painter->save();
+        painter->translate(0, translateYValue(contextGeometry, i));
+        painter->drawLine(0, 0, contextGeometry.width(), 0);
+        painter->restore();
+    }
+
+    painter->restore();
+}
 
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawAxis(const QRect &contextGeometry, QPainter *painter) const {
@@ -41,23 +77,58 @@ void AreDrawing<ConcreteDerived>::drawAxis(const QRect &contextGeometry, QPainte
 }
 
 template <class ConcreteDerived>
+float AreDrawing<ConcreteDerived>::translateValue(const Axis &axis, int width, float value) const {
+    float newWidth = width * (1 - 2 * MARGIN_PERCENT);
+    return newWidth * value / axis.length() + width * MARGIN_PERCENT;
+}
+
+template <class ConcreteDerived>
 float AreDrawing<ConcreteDerived>::translateXValue(const QRect &contextGeometry, float value) const {
-    float width = contextGeometry.width() * (1 - 2 * MARGIN_PERCENT);
     const Axis &x = this->_axisX;
-    return width * (value - x.min()) / (x.max() - x.min()) + contextGeometry.width() * MARGIN_PERCENT;
+    if (value < x.min()) {
+        return 0;
+    } else if (value > x.max()) {
+        return contextGeometry.width();
+    } else {
+        return translateValue(x, contextGeometry.width(), value - x.min());
+    }
 }
 
 template <class ConcreteDerived>
 float AreDrawing<ConcreteDerived>::translateYValue(const QRect &contextGeometry, float value) const {
-    float height = contextGeometry.height() * (1 - 2 * MARGIN_PERCENT);
     const Axis &y = this->_axisY;
-    return height * (y.max() - value) / (y.max() - y.min()) + contextGeometry.height() * MARGIN_PERCENT;
+    if (value < y.min()) {
+        return contextGeometry.height();
+    } else if (value > y.max()) {
+        return 0;
+    } else {
+        return translateValue(y, contextGeometry.height(), y.max() - value);
+    }
+}
+
+template <class ConcreteDerived>
+void AreDrawing<ConcreteDerived>::findGridMinMaxStep(const Axis &axis, int width, float *min, float *max, float *step) const {
+    auto ceil = [](float value) { return (int)value; };
+    auto floor = [](float value) { return (int)value + 1; };
+    float order = axis.orderOfMagnitude() * 0.1;
+
+    *min = floor(axis.min() / order) * order;
+    *max = ceil(axis.max() / order) * order;
+    float delta = *max - *min;
+
+    int nums[] = { 10, 4, 2, 1 };
+    for (int num : nums) {
+        *step = delta / num;
+        if (translateValue(axis, width, *min + *step) - translateValue(axis, width, *min) > MIN_GRID_CELL_SIZE) {
+            break;
+        }
+    }
 }
 
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawXAxis(const QRect &contextGeometry, QPainter *painter) const {
     painter->save();
-    painter->translate(0, translateYValue(contextGeometry, this->_axisY.zero()));
+    painter->translate(0, translateYValue(contextGeometry, 0));
     painter->drawLine(0, 0, contextGeometry.width(), 0);
     painter->restore();
 }
@@ -65,7 +136,7 @@ void AreDrawing<ConcreteDerived>::drawXAxis(const QRect &contextGeometry, QPaint
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawYAxis(const QRect &contextGeometry, QPainter *painter) const {
     painter->save();
-    painter->translate(translateXValue(contextGeometry, this->_axisX.zero()), 0);
+    painter->translate(translateXValue(contextGeometry, 0), 0);
     painter->drawLine(0, 0, 0, contextGeometry.height());
     painter->restore();
 }
