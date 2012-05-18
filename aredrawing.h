@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPoint>
 #include <QRect>
+#include <QString>
 #include "axis.h"
 #include "curve.h"
 
@@ -17,7 +18,6 @@ class AreDrawing : public ConcreteDerived
 public:
     AreDrawing() {}
 
-    void drawGrid(const QRect &contextGeometry, QPainter *painter) const;
     void drawAxis(const QRect &contextGeometry, QPainter *painter) const;
     void drawCurves(const QRect &contextGeometry, QPainter *painter) const;
 
@@ -28,6 +28,7 @@ private:
 
     void findGridMinMaxStep(const Axis &axis, int width, float *min, float *max, float *step) const;
 
+    void drawGrid(const QRect &contextGeometry, QPainter *painter) const;
     void drawXAxis(const QRect &contextGeometry, QPainter *painter) const;
     void drawYAxis(const QRect &contextGeometry, QPainter *painter) const;
 
@@ -36,36 +37,9 @@ private:
 };
 
 template <class ConcreteDerived>
-void AreDrawing<ConcreteDerived>::drawGrid(const QRect &contextGeometry, QPainter *painter) const {
-    QPen pen(Qt::black);
-    pen.setWidth(1);
-    pen.setStyle(Qt::DotLine);
-
-    float min, max, step;
-    painter->save();
-    painter->setPen(pen);
-
-    findGridMinMaxStep(this->_axisX, contextGeometry.width(), &min, &max, &step);
-    for (float i = min; i <= max; i += step) {
-        painter->save();
-        painter->translate(translateXValue(contextGeometry, i), 0);
-        painter->drawLine(0, 0, 0, contextGeometry.height());
-        painter->restore();
-    }
-
-    findGridMinMaxStep(this->_axisY, contextGeometry.height(), &min, &max, &step);
-    for (float i = min; i <= max; i += step) {
-        painter->save();
-        painter->translate(0, translateYValue(contextGeometry, i));
-        painter->drawLine(0, 0, contextGeometry.width(), 0);
-        painter->restore();
-    }
-
-    painter->restore();
-}
-
-template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawAxis(const QRect &contextGeometry, QPainter *painter) const {
+    drawGrid(contextGeometry, painter);
+
     QPen pen(Qt::black);
     pen.setWidth(2);
 
@@ -123,6 +97,55 @@ void AreDrawing<ConcreteDerived>::findGridMinMaxStep(const Axis &axis, int width
             break;
         }
     }
+}
+
+template <class ConcreteDerived>
+void AreDrawing<ConcreteDerived>::drawGrid(const QRect &contextGeometry, QPainter *painter) const {
+    QPen pen(Qt::black);
+    pen.setWidth(1);
+    pen.setStyle(Qt::DotLine);
+
+    float min, max, step;
+    painter->save();
+    painter->setPen(pen);
+
+    auto drawNumberLambda = [&painter](float n, float x, float y, char axis) {
+        QString number = QString::number(n);
+        float margin = 3;
+        float halfWidth = 4 * number.length();
+        float halfHeight = 4;
+
+        QPen pen(Qt::black);
+        painter->save();
+
+        (axis == 'y') ? painter->translate(x - halfWidth, y) : painter->translate(x, y + halfHeight);
+
+        painter->setPen(pen);
+        painter->drawRect(-margin, margin, 2 * (halfWidth + margin), - 2 * (halfHeight + margin));
+        painter->drawText(0, 0, number);
+
+        painter->restore();
+    };
+
+    findGridMinMaxStep(this->_axisX, contextGeometry.width(), &min, &max, &step);
+    for (float i = min; i <= max; i += step) {
+        painter->save();
+        painter->translate(translateXValue(contextGeometry, i), contextGeometry.height());
+        painter->drawLine(0, 0, 0, -contextGeometry.height());
+        drawNumberLambda(i, 0, -15, 'y');
+        painter->restore();
+    }
+
+    findGridMinMaxStep(this->_axisY, contextGeometry.height(), &min, &max, &step);
+    for (float i = min; i <= max; i += step) {
+        painter->save();
+        painter->translate(0, translateYValue(contextGeometry, i));
+        painter->drawLine(0, 0, contextGeometry.width(), 0);
+        drawNumberLambda(i, 10, 0, 'x');
+        painter->restore();
+    }
+
+    painter->restore();
 }
 
 template <class ConcreteDerived>

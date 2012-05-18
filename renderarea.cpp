@@ -13,7 +13,6 @@ void RenderArea::paintEvent(QPaintEvent *) {
     painter->drawRect(0, 0, width(), height());
 
     AreDrawing<CurvesPool> *drawingPool = (AreDrawing<CurvesPool> *)_pool;
-    drawingPool->drawGrid(geometry(), painter);
     drawingPool->drawAxis(geometry(), painter);
     drawingPool->drawCurves(geometry(), painter);
 
