@@ -10,6 +10,8 @@ public:
     Curve(const std::string &name);
 
     void addValue(float value);
+
+    const std::string &name() const;
     const std::vector<float> &values() const;
 
 private:
