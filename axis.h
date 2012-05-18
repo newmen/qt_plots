@@ -14,6 +14,7 @@ public:
     void tryUpdate(float value);
 
     // эти методы надо вынести в роль рисования оси
+    const std::string &name() const;
     float max() const;
     float min() const;
     float zero() const;

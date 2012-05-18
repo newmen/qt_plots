@@ -9,8 +9,10 @@ class Curve
 public:
     Curve(const std::string &name);
 
+    // методы в роль заполнения
     void addValue(float value);
 
+    // методы в роль рисования
     const std::string &name() const;
     const std::vector<float> &values() const;
 

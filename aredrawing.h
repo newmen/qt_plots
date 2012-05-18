@@ -157,6 +157,8 @@ void AreDrawing<ConcreteDerived>::drawXAxis(const QRect &contextGeometry, QPaint
     painter->save();
     painter->translate(0, translateYValue(contextGeometry, 0));
     painter->drawLine(0, 0, contextGeometry.width(), 0);
+
+//    painter->drawText(0, 4, this->_axisX.name().c_str());
     painter->restore();
 }
 

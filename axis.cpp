@@ -22,6 +22,10 @@ void Axis::tryUpdate(float value) {
     }
 }
 
+const std::string &Axis::name() const {
+    return _name;
+}
+
 float Axis::max() const {
     return *_max;
 }
