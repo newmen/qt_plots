@@ -1,11 +1,12 @@
 #ifndef AREDRAWING_H
 #define AREDRAWING_H
 
+#include <QColor>
 #include <QPainter>
 #include <QPoint>
 #include <QRect>
 
-#define MARGIN_PERCENT 0.08
+#define MARGIN_PERCENT 0.03
 
 template <class ConcreteDerived>
 class AreDrawing : public ConcreteDerived
@@ -24,6 +25,7 @@ private:
     void drawYAxis(const QRect &contextGeometry, QPainter *painter) const;
 
     QPointF *makeCurvePoints(const QRect &contextGeometry, const Curve &curve) const;
+    QColor *makeColors(size_t nums) const;
 };
 
 template <class ConcreteDerived>
@@ -64,12 +66,18 @@ void AreDrawing<ConcreteDerived>::drawYAxis(const QRect &contextGeometry, QPaint
 
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawCurves(const QRect &contextGeometry, QPainter *painter) const {
+    QColor *colors = makeColors(this->_curves.size());
+
     QPointF *curvePoints;
+    int colorIndex = 0;
     for (const Curve &curve : this->_curves) {
         curvePoints = makeCurvePoints(contextGeometry, curve);
+        painter->setPen(colors[colorIndex++]);
         painter->drawPolyline(curvePoints, this->_xValues.size());
         delete [] curvePoints;
     }
+
+    delete [] colors;
 }
 
 template <class ConcreteDerived>
@@ -81,6 +89,29 @@ QPointF *AreDrawing<ConcreteDerived>::makeCurvePoints(const QRect &contextGeomet
     }
 
     return curvePoints;
+}
+
+template <class ConcreteDerived>
+QColor *AreDrawing<ConcreteDerived>::makeColors(size_t nums) const {
+    float part = 5.f / nums;
+
+    float mod;
+    auto modUp = [&mod]() { return mod * 255; };
+    auto modDown = [&mod]() { return 255 * (1 - mod); };
+
+    QColor *colors = new QColor[nums];
+    for (size_t i = 0; i < nums; i++) {
+        float currPart = i * part;
+        mod = currPart - (int)currPart;
+
+        if (currPart < 1.f) colors[i].setRgb(255, modUp(), 0);
+        else if (currPart >= 1.f && currPart < 2.f) colors[i].setRgb(modDown(), 255, 0);
+        else if (currPart >= 2.f && currPart < 3.f) colors[i].setRgb(0, 255, modUp());
+        else if (currPart >= 3.f && currPart < 4.f) colors[i].setRgb(0, modDown(), 255);
+        else if (currPart >= 4.f) colors[i].setRgb(modUp(), 0, 255);
+    }
+
+    return colors;
 }
 
 #endif // AREDRAWING_H
