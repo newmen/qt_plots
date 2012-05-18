@@ -30,8 +30,14 @@ private:
 
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawAxis(const QRect &contextGeometry, QPainter *painter) const {
+    QPen pen(Qt::black);
+    pen.setWidth(2);
+
+    painter->save();
+    painter->setPen(pen);
     drawXAxis(contextGeometry, painter);
     drawYAxis(contextGeometry, painter);
+    painter->restore();
 }
 
 template <class ConcreteDerived>
@@ -66,16 +72,24 @@ void AreDrawing<ConcreteDerived>::drawYAxis(const QRect &contextGeometry, QPaint
 
 template <class ConcreteDerived>
 void AreDrawing<ConcreteDerived>::drawCurves(const QRect &contextGeometry, QPainter *painter) const {
+    QPen pen;
+    pen.setWidth(2);
+
     QColor *colors = makeColors(this->_curves.size());
+
+    painter->save();
 
     QPointF *curvePoints;
     int colorIndex = 0;
     for (const Curve &curve : this->_curves) {
         curvePoints = makeCurvePoints(contextGeometry, curve);
-        painter->setPen(colors[colorIndex++]);
+        pen.setColor(colors[colorIndex++]);
+        painter->setPen(pen);
         painter->drawPolyline(curvePoints, this->_xValues.size());
         delete [] curvePoints;
     }
+
+    painter->restore();
 
     delete [] colors;
 }
