@@ -8,7 +8,9 @@ class Curve
 {
 public:
     Curve(const std::string &name);
+
     void addValue(float value);
+    const std::vector<float> &values() const;
 
 private:
     std::string _name;

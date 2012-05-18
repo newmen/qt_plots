@@ -6,12 +6,16 @@
 class Axis
 {
 public:
-    Axis(const std::string &name);
+    Axis();
 
-    float max() const { return _max; }
-    float min() const { return _min; }
-
+    // эти методы надо вынести в роль установки значений оси
+    void setName(const std::string &name);
     void tryUpdate(float value);
+
+    // эти методы надо вынести в роль рисования оси
+    float max() const;
+    float min() const;
+    float zero() const;
 
 private:
     std::string _name;

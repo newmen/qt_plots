@@ -2,12 +2,13 @@
 #define FILEREADER_H
 
 #include <fstream>
+#include "curvespool.h"
 
 class FileReader
 {
 public:
     FileReader(const char *filename);
-//    PlotsRenderer read();
+    void read(CurvesPool *curvesPool);
 
 private:
     std::ifstream _file;

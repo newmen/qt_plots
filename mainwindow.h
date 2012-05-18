@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include "curvespool.h"
 #include "renderarea.h"
 
 class MainWindow : public QWidget
@@ -10,12 +11,11 @@ class MainWindow : public QWidget
 public:
     MainWindow();
     ~MainWindow();
-    
-signals:
-    
-public slots:
+
+    void readAndDraw(const char *fileName);
     
 private:
+    CurvesPool *_curvesPool;
     RenderArea *_renderArea;
 };
 

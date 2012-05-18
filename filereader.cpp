@@ -1,45 +1,25 @@
 #include "filereader.h"
-//#include <map>
-//#include <vector>
-//#include <string>
-//#include <sstream>
-//#include <stdlib.h>
+#include "arefilling.h"
+
+#include <iostream>
 
 using namespace std;
 
 FileReader::FileReader(const char *filename) : _file(filename) {
+    if (!_file) {
+        std::cerr << "Ошибка чтения файла " << filename << std::endl;
+    }
 }
 
-//PlotsRenderer FileReader::read() {
-//    char asixX[10];
-//    char asixY[10];
+void FileReader::read(CurvesPool *curvesPool) {
+    AreFilling<CurvesPool> *fillingPool = (AreFilling<CurvesPool> *)curvesPool;
 
-//    _file >> asixX;
-//    _file >> asixY;
+    char xAxisName[32], yAxisName[32];
+    _file >> xAxisName >> yAxisName;
+    fillingPool->setAxisNames(xAxisName, yAxisName);
 
-//    string line;
-//    getline(_file, line);
-
-//    stringstream line_stream(line);
-//    vector<string> names;
-//    while (line_stream) {
-//        string name;
-//        getline(line_stream, name, "\t");
-//        names.push_back(name);
-//    }
-
-//    CurvesInfo ci;
-//    vector<Curve*> curves;
-//    if (names[0] == "#") {
-//        for(vector<string>::const_iterator p = names.begin() + 1; p != names.end(); p++) {
-//            curves.push_back(ci.addCurve(*p));
-//        }
-//    } else {
-//        ci.addXValue(atoi(names[0]));
-//        for(vector<string>::const_iterator p = names.begin() + 1; p != names.end(); p++) {
-//            curves.push_back(ci.addCurve(""));
-
-//        }
-
-//    }
-//}
+    string line;
+    while (getline(_file, line)) {
+        fillingPool->parseStrLine(line);
+    }
+}

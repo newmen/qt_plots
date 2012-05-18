@@ -1,14 +1,20 @@
 #include "renderarea.h"
+#include "aredrawing.h"
 #include <QtGui>
 
-RenderArea::RenderArea(QWidget *parent) : QWidget(parent) {
+RenderArea::RenderArea(CurvesPool *pool) : _pool(pool) {
 }
 
 void RenderArea::paintEvent(QPaintEvent *) {
     QPainter *painter = new QPainter(this);
+    painter->setPen(Qt::white);
+    painter->setBrush(Qt::white);
+    painter->drawRect(0, 0, width(), height());
 
-//    draw(painter);
-    painter->drawRect(12, 22, 100, 220);
+    painter->setPen(Qt::black);
+    AreDrawing<CurvesPool> *drawingPool = (AreDrawing<CurvesPool> *)_pool;
+    drawingPool->drawAxis(geometry(), painter);
+    drawingPool->drawCurves(geometry(), painter);
 
     delete painter;
 }

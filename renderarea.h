@@ -2,22 +2,19 @@
 #define RENDERAREA_H
 
 #include <QWidget>
+#include "curvespool.h"
 
 class RenderArea : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RenderArea(QWidget *parent = 0);
-    
+    RenderArea(CurvesPool *pool);
+
 protected:
     void paintEvent(QPaintEvent *);
 
-//    virtual void draw(QPainter *) = 0;
-
-signals:
-    
-public slots:
-    
+private:
+    CurvesPool *_pool;
 };
 
 #endif // RENDERAREA_H
