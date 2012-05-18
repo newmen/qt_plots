@@ -4,11 +4,11 @@
 
 В коде присутствует попытка реализации парадигмы DCI. Т.к. используя DCI, необходимо думать прецендентами, то сначала представим все преценденты необходимые для успешного построения графиков кривых.
 
-![Use Cases](/newmen/qt_plots/blob/master/docs/use_cases.png)
+![Use Cases](https://github.com/newmen/qt_plots/blob/master/docs/use_cases.png?raw=true)
 
 Представленная диаграмма говорит о том, что необходимо прочитать данные из файла, и отобразить их. Таким образом, Данные с которыми мы работаем представлены композиционным класом CurvesPool. Этому классу, в зависимости от Контекста, назначаются Роли AreFilling (для заполнения) и AreDrawing (для отображения).
 
-![Classes](/newmen/qt_plots/blob/master/docs/classes.png)
+![Classes](https://github.com/newmen/qt_plots/blob/master/docs/classes.png?raw=true)
 
 ##Мысли по поводу DCI.
 
