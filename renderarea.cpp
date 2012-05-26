@@ -2,7 +2,7 @@
 #include "aredrawing.h"
 #include <QtGui>
 
-RenderArea::RenderArea(CurvesPool *pool) : _pool(pool) {
+RenderArea::RenderArea(const CurvesPool *pool) : _pool(pool) {
 }
 
 void RenderArea::paintEvent(QPaintEvent *) {
@@ -12,7 +12,7 @@ void RenderArea::paintEvent(QPaintEvent *) {
     painter->setBrush(Qt::white);
     painter->drawRect(0, 0, width(), height());
 
-    AreDrawing<CurvesPool> *drawingPool = (AreDrawing<CurvesPool> *)_pool;
+    const AreDrawing<CurvesPool> *drawingPool = static_cast<const AreDrawing<CurvesPool> *>(_pool);
     drawingPool->drawAxis(geometry(), painter);
     drawingPool->drawCurves(geometry(), painter);
 

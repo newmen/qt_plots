@@ -8,13 +8,13 @@ class RenderArea : public QWidget
 {
     Q_OBJECT
 public:
-    RenderArea(CurvesPool *pool);
+    RenderArea(const CurvesPool *pool);
 
 protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    CurvesPool *_pool;
+    const CurvesPool *_pool;
 };
 
 #endif // RENDERAREA_H
