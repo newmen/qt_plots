@@ -1,3 +1,5 @@
+TARGET = qt_plots
+
 QMAKE_CXXFLAGS += -std=c++0x
 
 HEADERS += \

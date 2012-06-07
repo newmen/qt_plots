@@ -40,7 +40,7 @@ float Axis::zero() const {
         zero = *_min;
     } else if (*_min < 0 && 0 < *_max) {
         zero = 0;
-    } else if (0 >= *_max) {
+    } else { // if (0 >= *_max) {
         zero = *_max;
     }
 

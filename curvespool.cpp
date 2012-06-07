@@ -1,4 +1,3 @@
 #include "curvespool.h"
 
-CurvesPool::CurvesPool() {
-}
+CurvesPool::CurvesPool() {}
